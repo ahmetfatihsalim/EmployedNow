@@ -1,6 +1,6 @@
 # EmployedNow Full-Stack MVP
 
-EmployedNow is a LinkedIn-like MVP with a .NET 8 Web API backend and a React + TypeScript frontend designed for clear non-technical demos.
+EmployedNow is a Job Postboard MVP with a .NET 8 Web API backend and a React + TypeScript frontend designed for clear non-technical demos.
 
 ## Tech Stack
 - Backend
