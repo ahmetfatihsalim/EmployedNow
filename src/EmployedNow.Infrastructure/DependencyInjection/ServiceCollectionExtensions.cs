@@ -21,6 +21,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IJobService, JobService>();
         services.AddScoped<IApplicationService, ApplicationService>();
         services.AddScoped<IConnectionService, ConnectionService>();
+        services.AddScoped<IUserService, UserService>();
         services.AddScoped<IPremiumService, PremiumService>();
         services.AddScoped<ITokenService, TokenService>();
 

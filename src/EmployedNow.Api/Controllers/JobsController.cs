@@ -54,4 +54,28 @@ public class JobsController : ControllerBase
         var response = await _jobService.CreateAsync(userId, request, cancellationToken);
         return CreatedAtAction(nameof(GetById), new { jobId = response.Id }, response);
     }
+
+    /// <summary>
+    /// Updates a company-owned job posting.
+    /// </summary>
+    [Authorize(Roles = nameof(UserRole.Company))]
+    [HttpPut("{jobId:guid}")]
+    public async Task<ActionResult<JobSummaryResponse>> Update(Guid jobId, [FromBody] UpdateJobRequest request, CancellationToken cancellationToken)
+    {
+        var userId = User.GetUserId();
+        var response = await _jobService.UpdateAsync(userId, jobId, request, cancellationToken);
+        return Ok(response);
+    }
+
+    /// <summary>
+    /// Deletes a company-owned job posting.
+    /// </summary>
+    [Authorize(Roles = nameof(UserRole.Company))]
+    [HttpDelete("{jobId:guid}")]
+    public async Task<IActionResult> Delete(Guid jobId, CancellationToken cancellationToken)
+    {
+        var userId = User.GetUserId();
+        await _jobService.DeleteAsync(userId, jobId, cancellationToken);
+        return NoContent();
+    }
 }

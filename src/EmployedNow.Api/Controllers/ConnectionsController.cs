@@ -9,7 +9,7 @@ namespace EmployedNow.Api.Controllers;
 
 [ApiController]
 [Route("api/connections")]
-[Authorize(Roles = nameof(UserRole.User))]
+[Authorize]
 public class ConnectionsController : ControllerBase
 {
     private readonly IConnectionService _connectionService;

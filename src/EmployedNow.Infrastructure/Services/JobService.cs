@@ -52,6 +52,54 @@ public class JobService : IJobService
     }
 
     /// <summary>
+    /// Updates a company-owned job posting.
+    /// </summary>
+    public async Task<JobSummaryResponse> UpdateAsync(Guid companyId, Guid jobId, UpdateJobRequest request, CancellationToken cancellationToken = default)
+    {
+        var entity = await _dbContext.JobPostings.FirstOrDefaultAsync(x => x.Id == jobId, cancellationToken);
+        if (entity is null)
+        {
+            throw new ApiException("Job not found.", 404);
+        }
+
+        if (entity.CompanyId != companyId)
+        {
+            throw new ApiException("You can only update your own jobs.", 403);
+        }
+
+        if (string.IsNullOrWhiteSpace(request.Title) || string.IsNullOrWhiteSpace(request.Description))
+        {
+            throw new ApiException("Title and description are required.", 400);
+        }
+
+        entity.Title = request.Title.Trim();
+        entity.Description = request.Description.Trim();
+        await _dbContext.SaveChangesAsync(cancellationToken);
+
+        return new JobSummaryResponse(entity.Id, entity.Title, entity.Description, entity.CompanyId, entity.CreatedAt);
+    }
+
+    /// <summary>
+    /// Deletes a company-owned job posting.
+    /// </summary>
+    public async Task DeleteAsync(Guid companyId, Guid jobId, CancellationToken cancellationToken = default)
+    {
+        var entity = await _dbContext.JobPostings.FirstOrDefaultAsync(x => x.Id == jobId, cancellationToken);
+        if (entity is null)
+        {
+            throw new ApiException("Job not found.", 404);
+        }
+
+        if (entity.CompanyId != companyId)
+        {
+            throw new ApiException("You can only delete your own jobs.", 403);
+        }
+
+        _dbContext.JobPostings.Remove(entity);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    /// <summary>
     /// Returns public job postings with bounded pagination parameters.
     /// </summary>
     public async Task<PagedResult<JobSummaryResponse>> GetPagedAsync(int pageNumber, int pageSize, CancellationToken cancellationToken = default)

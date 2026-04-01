@@ -1,4 +1,5 @@
 using System.Text;
+using System.Text.Json.Serialization;
 using EmployedNow.Api.Middleware;
 using EmployedNow.Infrastructure.Data;
 using EmployedNow.Infrastructure.DependencyInjection;
@@ -34,8 +35,29 @@ builder.Configuration["ConnectionStrings:DefaultConnection"] = sqliteBuilder.ToS
 
 // Registers Infrastructure dependencies (DbContext + application services).
 builder.Services.AddInfrastructure(builder.Configuration);
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        // Keeps enum values human-readable for frontend contracts ("User"/"Company").
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
 builder.Services.AddEndpointsApiExplorer();
+
+var corsOriginsRaw = builder.Configuration["Cors:AllowedOrigins"] ?? "http://localhost:5173";
+var allowedOrigins = corsOriginsRaw
+    .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+    .ToArray();
+
+// Enables browser requests from configured frontend origins.
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("FrontendCors", policy =>
+    {
+        policy.WithOrigins(allowedOrigins)
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
 
 // Configures Swagger with JWT Bearer security metadata for authenticated endpoints.
 builder.Services.AddSwaggerGen(options =>
@@ -117,6 +139,8 @@ app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
 
 app.UseSwagger();
 app.UseSwaggerUI();
+
+app.UseCors("FrontendCors");
 
 app.UseAuthentication();
 app.UseAuthorization();
