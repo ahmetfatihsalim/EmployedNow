@@ -35,6 +35,7 @@ EmployedNow is a Job Postboard MVP with a .NET 8 Web API backend and a React + T
 How to Run EmployedNow MVP
 
   Ensure Docker Desktop is running.
+  Just run the run.bat file. But if you want to do it manually from terminal:
   Open a terminal in the project root folder.
   Run the following command in terminal 
 
